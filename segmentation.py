@@ -15,7 +15,6 @@ income = st.number_input("Income", min_value=0, max_value=1000000, value=50000)
 total_spending = st.number_input("Total Spending(Sum of Purchases)", min_value=0, max_value=5000, value=1000)
 num_web_purchases = st.number_input("Number of Web Purchases", min_value=0, max_value=100, value=10)
 num_store_purchases = st.number_input("Number of Store Purchases", min_value=0, max_value=1000, value=5)
-# fixed: allow 100 by setting max_value >= 100
 num_web_visits = st.number_input("Number of Web Visits", min_value=0, max_value=100, value=100)
 recency = st.number_input("Recency (days since last purchase)", min_value=0, max_value=365, value=30)
 
@@ -35,9 +34,17 @@ input_data = pd.DataFrame(
     columns=feature_order
 )
 
+# Cluster labels to show
+cluster_labels = {
+    0: "High Income, High Spending → Premium Customer",
+    2: "High Web Purchases, Low Store Purchases → Digital Customer",
+    5: "Low recency / inactive → Dormant Customer",
+    6: "Low Income, Low Spending → Budget Customers",
+}
+
 input_data_scaled = scaler.transform(input_data)
 
 if st.button("Predict Segment"):
-    cluster = kmeans.predict(input_data_scaled)[0]
+    cluster = int(kmeans.predict(input_data_scaled)[0])
     st.success(f"Predicted Segment: Cluster {cluster}")
-    st.write("This customer belongs to Segment:", cluster)
+    st.write(cluster_labels.get(cluster, "No label defined for this cluster."))
